@@ -1,0 +1,45 @@
+@startuml
+actor User
+
+User -> MainView : Ctrl+Z (Undo)
+activate MainView
+MainView -> SpreadsheetViewModel : getInvoker()
+deactivate MainView
+
+activate SpreadsheetViewModel
+SpreadsheetViewModel -> Invoker : undo()
+deactivate SpreadsheetViewModel
+
+activate Invoker
+Invoker -> CellEditCommand : undo()
+deactivate Invoker
+
+activate CellEditCommand
+CellEditCommand -> SpreadsheetCellModel : setExpressionText(oldValue)
+deactivate CellEditCommand
+
+SpreadsheetCellModel -> ExpressionBuilder : toString(oldValue, cell)
+ExpressionBuilder --> SpreadsheetCellModel : evaluatedValue
+SpreadsheetCellModel -> SpreadsheetCellViewModel : notify updated expressionValue
+
+User -> MainView : Ctrl+Y (Redo)
+activate MainView
+MainView -> SpreadsheetViewModel : getInvoker()
+deactivate MainView
+
+activate SpreadsheetViewModel
+SpreadsheetViewModel -> Invoker : redo()
+deactivate SpreadsheetViewModel
+
+activate Invoker
+Invoker -> CellEditCommand : redo()
+deactivate Invoker
+
+activate CellEditCommand
+CellEditCommand -> SpreadsheetCellModel : setExpressionText(newValue)
+deactivate CellEditCommand
+
+SpreadsheetCellModel -> ExpressionBuilder : toString(newValue, cell)
+ExpressionBuilder --> SpreadsheetCellModel : evaluatedValue
+SpreadsheetCellModel -> SpreadsheetCellViewModel : notify updated expressionValue
+@enduml

@@ -1,0 +1,108 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+package model {
+
+abstract class Expression {
+  + interpret() : double
+}
+abstract class BinaryExpression
+class NumberExpression
+class AdditionExpression
+class SubstractionExpression
+class MultiplyExpression
+class DivideExpression
+class ExpressionBuilder {
+  + build(String) : Object
+  + toString() : String
+}
+
+class SpreadsheetCellModel
+class SpreadsheetModel
+
+Expression <|-- NumberExpression
+Expression <|-- BinaryExpression
+
+BinaryExpression <|-- AdditionExpression
+BinaryExpression <|-- SubstractionExpression
+BinaryExpression <|-- MultiplyExpression
+BinaryExpression <|-- DivideExpression
+
+BinaryExpression o-- "1" Expression : left
+BinaryExpression o-- "1" Expression : right
+
+SpreadsheetCellModel o-- "1" ExpressionBuilder
+SpreadsheetModel o-- "*" SpreadsheetCellModel
+SpreadsheetModel o-- "1" ExpressionBuilder
+
+}
+
+package viewmodel {
+
+class SpreadsheetViewModel {
+}
+
+class SpreadsheetCellViewModel
+class Invoker {
+  - undoStack : ObservableList<CellEditCommand>
+  - redoStack : ObservableList<CellEditCommand>
+  + execute(command : CellEditCommand) : void
+}
+
+class CellEditCommand {
+}
+
+SpreadsheetCellViewModel o-- "1" model.SpreadsheetCellModel
+SpreadsheetCellViewModel o-- "1" Invoker
+SpreadsheetViewModel o-- "1" model.SpreadsheetModel
+SpreadsheetViewModel o-- "1" Invoker
+Invoker o-- "*" CellEditCommand
+
+}
+
+package view {
+
+class HeaderView {
+}
+
+class MainView {
+}
+
+class FileView {
+}
+
+class MySpreadsheetView {
+}
+
+MainView o-- "1" MySpreadsheetView
+MainView o-- "1" HeaderView
+MainView o-- "1" SpreadsheetViewModel
+MainView o-- "1" FileView
+
+FileView o-- "1" SpreadsheetViewModel
+FileView o-- "1" Invoker
+
+MySpreadsheetView o-- "1" SpreadsheetViewModel
+
+}
+
+class App {
+  + start(primaryStage : Stage) : void  
+  + main(args : String[]) : void  
+}
+
+package javafx {
+  class VBox
+  class Application
+}
+
+package org {
+  class SpreadsheetView
+}
+
+javafx.Application <|-- App
+javafx.VBox <|-- view.HeaderView
+javafx.VBox <|-- view.MainView
+org.SpreadsheetView <|-- view.MySpreadsheetView
+
+@enduml
